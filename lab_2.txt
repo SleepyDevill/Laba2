@@ -1,0 +1,34 @@
+1
+select MAX(TotalDue)
+from SalesLT.SalesOrderHeader
+1 - с подзапросами
+select TotalDue
+from SalesLT.SalesOrderHeader
+WHERE  TotalDue=(select MAX(TotalDue) from SalesLT.SalesOrderHeader) 
+
+2
+select sum(SalesOrderDetail.OrderQty) as OrderQty , Customer.FirstName, Customer.MiddleName,Customer.LastName
+from  ((SalesLT.Customer  INNER JOIN SalesLT.SalesOrderHeader  on Customer.CustomerID = SalesOrderHeader.CustomerID)
+INNER JOIN SalesLT.SalesOrderDetail on SalesOrderDetail.SalesOrderID=SalesOrderHeader.SalesOrderID)
+GROUP BY FirstName, MiddleName,LastName
+HAVING sum(OrderQty)<20    
+2 - с подзапросами
+SELECT  SalesLT.Customer.CustomerID , SalesLT.Customer.FirstName, SalesLT.Customer.MiddleName, SalesLT.Customer.LastName
+FROM SalesLT.Customer
+WHERE SalesLT.Customer.CustomerID in (SELECT CustomerID 
+                  FROM SalesLT.SalesOrderHeader inner join SalesLT.SalesOrderDetail 
+                        on SalesLT.SalesOrderHeader.SalesOrderID = SalesLT.SalesOrderDetail.SalesOrderID
+                  GROUP BY CustomerID
+                  HAVING Sum(SalesLT.SalesOrderDetail.OrderQty)<20)
+
+
+3.
+SELECT  SalesLt.Address.City, YEAR(SalesLT.SalesOrderHeader.DueDate) as Year, MONTH(SalesLT.SalesOrderHeader.DueDate) as Month,
+        Sum(SalesLT.SalesOrderHeader.TotalDue) as Sum_Sales
+FROM SalesLT.SalesOrderHeader inner join SalesLt.Address ON SalesLT.SalesOrderHeader.BillToAddressID=SalesLt.Address.AddressID
+GROUP BY SalesLt.Address.City, SalesLT.SalesOrderHeader.TotalDue, SalesLT.SalesOrderHeader.DueDate
+
+4.
+SELECT Top(5) SalesLT.SalesOrderHeader.ShipMethod, SalesLT.SalesOrderHeader.PurchaseOrderNumber, SalesLT.SalesOrderHeader.OrderDate, SalesLT.SalesOrderHeader.TotalDue
+FROM SalesLT.SalesOrderHeader 
+ORDER by TotalDue DESC
